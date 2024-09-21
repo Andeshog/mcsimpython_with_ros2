@@ -8,6 +8,14 @@ or clone with https: `git clone https://github.com/Andeshog/mcsimpython_with_ros
 ## Build and source
 `cd ~/mcsim_ws ; colcon build ; source install/setup.bash`
 
+## Activate virtual environment
+`python3 -m venv venv`
+
+`source venv/bin/activate`
+
+`pip install MCSimPython`
+
+
 ## Run a demo
 `ros2 run mcsim_odom_demo odom_demo.py`
 
