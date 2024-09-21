@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 from MCSimPython.simulator import RVG_DP_6DOF
-from MCSimPython.waves import WaveLoad, JONSWAP
 import rclpy
 from rclpy.node import Node
 from nav_msgs.msg import Odometry
