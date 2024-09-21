@@ -7,7 +7,7 @@ from rclpy.node import Node
 from nav_msgs.msg import Odometry
 import numpy as np
 
-class OdomDemo(Node):
+class OdomDemoWithWaves(Node):
     def __init__(self):
         super().__init__('odom_waves_demo')
 
@@ -112,7 +112,7 @@ class OdomDemo(Node):
     
 def main(args=None):
     rclpy.init(args=args)
-    odom_demo = OdomDemo()
+    odom_demo = OdomDemoWithWaves()
     rclpy.spin(odom_demo)
     odom_demo.destroy_node()
     rclpy.shutdown()
