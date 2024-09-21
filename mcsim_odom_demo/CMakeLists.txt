@@ -14,6 +14,7 @@ ament_python_install_package(${PROJECT_NAME})
 
 install(PROGRAMS
   scripts/odom_demo.py
+  scripts/odom_demo_with_waves.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
