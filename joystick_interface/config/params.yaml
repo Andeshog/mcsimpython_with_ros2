@@ -1,0 +1,5 @@
+joystick_interface:
+  ros__parameters:
+    scale_surge: 80000
+    scale_sway: 80000
+    scale_yaw: 1500000

@@ -4,6 +4,7 @@ from MCSimPython.simulator import RVG_DP_6DOF
 import rclpy
 from rclpy.node import Node
 from nav_msgs.msg import Odometry
+from geometry_msgs.msg import Wrench
 import numpy as np
 
 class OdomDemo(Node):
@@ -13,6 +14,7 @@ class OdomDemo(Node):
         self.init_simulator()
 
         self.publisher_ = self.create_publisher(Odometry, 'odom', 10)
+        self.tau_sub_ = self.create_subscription(Wrench, 'joystick/control_input', self.tau_callback, 10)
         self.timer_ = self.create_timer(self.dt, self.timer_callback)
 
         self.get_logger().info('Odometry demo node has been started.')
@@ -27,6 +29,11 @@ class OdomDemo(Node):
 
         self.eta = self.vessel.get_eta()
         self.nu = self.vessel.get_nu()
+
+    def tau_callback(self, msg: Wrench):
+        self.tau[0] = msg.force.x
+        self.tau[1] = msg.force.y
+        self.tau[5] = msg.torque.z
 
     def timer_callback(self):
         self.vessel.integrate(self.Uc, self.beta_c, self.tau)
