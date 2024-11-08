@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="milliAmpere1">
+    <material name="blue">
+        <color rgba="0.8 0.8 0.8 1"/>
+    </material>
+    <link name="base_link">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <mesh filename="package://ma1_description/meshes/ma1.stl"/>
+            </geometry>
+            <material name="blue"/>
+        </visual>
+    </link>
+
+</robot>
