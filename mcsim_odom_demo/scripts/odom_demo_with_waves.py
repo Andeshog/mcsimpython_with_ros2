@@ -5,6 +5,8 @@ from MCSimPython.waves import WaveLoad, JONSWAP
 import rclpy
 from rclpy.node import Node
 from nav_msgs.msg import Odometry
+from geometry_msgs.msg import Wrench, TransformStamped
+from tf2_ros import TransformBroadcaster
 import numpy as np
 
 class OdomDemoWithWaves(Node):
@@ -14,9 +16,12 @@ class OdomDemoWithWaves(Node):
         self.init_simulator()
 
         self.publisher_ = self.create_publisher(Odometry, 'odom_waves', 10)
+        self.tau_sub_ = self.create_subscription(Wrench, 'joystick/control_input', self.tau_callback, 10)
         self.timer_ = self.create_timer(self.dt, self.timer_callback)
 
         self.time = 0.0
+
+        self.tf_broadcaster = TransformBroadcaster(self)
 
         self.get_logger().info('Odometry demo node has been started.')
 
@@ -29,8 +34,8 @@ class OdomDemoWithWaves(Node):
         self.tau = np.array([0.0, 0.0, 0.0 ,0.0, 0.0, 0.0])
 
         hs = 2.5 # Significant wave height
-        tp = 9.0 # Peak period
-        gamma = 3.3 # Peak factor
+        tp = 6.0 # Peak period
+        gamma = 2.3 # Peak factor
         wp = 2*np.pi/tp # Peak frequency
         wmin = 0.5*wp
         wmax = 3.0*wp
@@ -62,6 +67,11 @@ class OdomDemoWithWaves(Node):
         self.eta = self.vessel.get_eta()
         self.nu = self.vessel.get_nu()
 
+    def tau_callback(self, msg: Wrench):
+        self.tau[0] = msg.force.x
+        self.tau[1] = msg.force.y
+        self.tau[5] = msg.torque.z
+
     def timer_callback(self):
         tau_wave = self.waveload(self.time, self.vessel.get_eta())
         self.tau = tau_wave
@@ -71,7 +81,7 @@ class OdomDemoWithWaves(Node):
 
         msg = Odometry()
         msg.header.stamp = self.get_clock().now().to_msg()
-        msg.header.frame_id = 'odom'
+        msg.header.frame_id = 'world'
         msg.child_frame_id = 'base_link'
         msg.pose.pose.position.x = self.eta[0]
         msg.pose.pose.position.y = self.eta[1]
@@ -92,7 +102,27 @@ class OdomDemoWithWaves(Node):
 
         self.publisher_.publish(msg)
 
+        self.broadcast_transform(quat)
+
         self.time += self.dt
+
+    def broadcast_transform(self, quat: np.ndarray):
+        t = TransformStamped()
+
+        t.header.stamp = self.get_clock().now().to_msg()
+        t.header.frame_id = 'world'
+        t.child_frame_id = 'base_link'
+
+        t.transform.translation.x = self.eta[0]
+        t.transform.translation.y = self.eta[1]
+        t.transform.translation.z = self.eta[2]
+
+        t.transform.rotation.w = quat[0]
+        t.transform.rotation.x = quat[1]
+        t.transform.rotation.y = quat[2]
+        t.transform.rotation.z = quat[3]
+
+        self.tf_broadcaster.sendTransform(t)
 
     @staticmethod
     def euler_to_quat(roll: float, pitch: float, yaw: float) -> np.ndarray:

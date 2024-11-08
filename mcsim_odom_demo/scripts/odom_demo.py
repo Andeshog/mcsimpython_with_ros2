@@ -4,7 +4,8 @@ from MCSimPython.simulator import RVG_DP_6DOF
 import rclpy
 from rclpy.node import Node
 from nav_msgs.msg import Odometry
-from geometry_msgs.msg import Wrench
+from geometry_msgs.msg import Wrench, TransformStamped
+from tf2_ros import TransformBroadcaster
 import numpy as np
 
 class OdomDemo(Node):
@@ -16,6 +17,8 @@ class OdomDemo(Node):
         self.publisher_ = self.create_publisher(Odometry, 'odom', 10)
         self.tau_sub_ = self.create_subscription(Wrench, 'joystick/control_input', self.tau_callback, 10)
         self.timer_ = self.create_timer(self.dt, self.timer_callback)
+
+        self.tf_broadcaster = TransformBroadcaster(self)
 
         self.get_logger().info('Odometry demo node has been started.')
 
@@ -42,7 +45,7 @@ class OdomDemo(Node):
 
         msg = Odometry()
         msg.header.stamp = self.get_clock().now().to_msg()
-        msg.header.frame_id = 'odom'
+        msg.header.frame_id = 'world'
         msg.child_frame_id = 'base_link'
         msg.pose.pose.position.x = self.eta[0]
         msg.pose.pose.position.y = self.eta[1]
@@ -62,6 +65,26 @@ class OdomDemo(Node):
         msg.twist.twist.angular.z = self.nu[5]
 
         self.publisher_.publish(msg)
+
+        self.broadcast_transform(quat)
+
+    def broadcast_transform(self, quat: np.ndarray):
+        t = TransformStamped()
+
+        t.header.stamp = self.get_clock().now().to_msg()
+        t.header.frame_id = 'world'
+        t.child_frame_id = 'base_link'
+
+        t.transform.translation.x = self.eta[0]
+        t.transform.translation.y = self.eta[1]
+        t.transform.translation.z = self.eta[2]
+
+        t.transform.rotation.w = quat[0]
+        t.transform.rotation.x = quat[1]
+        t.transform.rotation.y = quat[2]
+        t.transform.rotation.z = quat[3]
+
+        self.tf_broadcaster.sendTransform(t)
 
     @staticmethod
     def euler_to_quat(roll: float, pitch: float, yaw: float) -> np.ndarray:
