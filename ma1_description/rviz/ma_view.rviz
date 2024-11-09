@@ -10,7 +10,7 @@ Visualization Manager:
       Value: true
       Plane: XY
       Grid Size: 1
-      Plane Cell Count: 10
+      Plane Cell Count: 100
     - Alpha: 0.8
       Class: rviz_default_plugins/RobotModel
       Description Topic:
