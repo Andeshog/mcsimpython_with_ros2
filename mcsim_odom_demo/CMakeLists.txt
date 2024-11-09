@@ -14,6 +14,11 @@ find_package(tf2_ros REQUIRED)
 
 ament_python_install_package(${PROJECT_NAME})
 
+install(DIRECTORY
+  launch
+  DESTINATION share/${PROJECT_NAME}
+)
+
 install(PROGRAMS
   scripts/odom_demo.py
   scripts/odom_demo_with_waves.py
