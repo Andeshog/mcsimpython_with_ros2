@@ -13,7 +13,6 @@ def generate_launch_description():
     rviz_launch = os.path.join(description_package, 'launch', 'description.launch.py')
     joystick_launch = os.path.join(joystick_package, 'launch', 'joystick_interface.launch.py')
 
-    # Create the IncludeLaunchDescription actions
     rviz_launch_description = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(rviz_launch)
     )
